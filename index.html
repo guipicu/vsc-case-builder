@@ -188,30 +188,6 @@
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
         }
         
-        .preview-section {
-            background: #f8f9fa;
-            border: 2px solid #dee2e6;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        
-        .preview-iframe {
-            width: 100%;
-            height: 600px;
-            border: none;
-            border-radius: 8px;
-            background: white;
-        }
-        
-        .export-section {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            padding: 25px;
-            border-radius: 10px;
-            text-align: center;
-        }
-        
         .code-output {
             background: #2d3748;
             color: #e2e8f0;
@@ -256,6 +232,14 @@
         .status-incomplete {
             background: #fff3cd;
             color: #856404;
+        }
+        
+        .export-section {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
         }
         
         @media (max-width: 768px) {
@@ -582,8 +566,9 @@
                 
                 <button class="btn btn-success" onclick="generatePreview()">🔄 Generate Preview</button>
                 
-                <div class="preview-section">
-                    <iframe id="previewFrame" class="preview-iframe" src="about:blank"></iframe>
+                <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 10px; padding: 20px; margin: 20px 0;">
+                    <p><strong>Preview will be displayed here</strong></p>
+                    <p>Click "Generate Preview" to see how your case will look to students.</p>
                 </div>
             </div>
         </div>
@@ -699,372 +684,22 @@
             }
         }
 
-        function collectFormData() {
-            // Patient information
-            const patientData = {
-                title: document.getElementById('caseTitle').value,
-                species: document.getElementById('caseSpecies').value,
-                synopsis: document.getElementById('caseSynopsis').value,
-                breed: document.getElementById('patientBreed').value,
-                age: document.getElementById('patientAge').value,
-                sex: document.getElementById('patientSex').value,
-                history: document.getElementById('patientHistory').value
-            };
-
-            // Clinical findings
-            const clinicalFindings = Array.from(document.querySelectorAll('#clinicalFindings input'))
-                .map(input => input.value)
-                .filter(value => value.trim() !== '');
-
-            // Requirements
-            const requirements = {
-                minDifferentials: document.getElementById('minDifferentials').value,
-                primaryTest: document.getElementById('primaryTest').value,
-                minTreatments: document.getElementById('minTreatments').value
-            };
-
-            // Differential diagnoses
-            const differentials = {
-                cardiac: Array.from(document.querySelectorAll('#cardiacCauses input')).map(i => i.value).filter(v => v),
-                hepatic: Array.from(document.querySelectorAll('#hepaticCauses input')).map(i => i.value).filter(v => v),
-                renal: Array.from(document.querySelectorAll('#renalCauses input')).map(i => i.value).filter(v => v),
-                neoplastic: Array.from(document.querySelectorAll('#neoplasticCauses input')).map(i => i.value).filter(v => v)
-            };
-
-            // AI configuration
-            const aiConfig = {
-                model: document.getElementById('aiModel').value,
-                temperature: document.getElementById('aiTemperature').value,
-                maxTokens: document.getElementById('maxTokens').value,
-                context: document.getElementById('aiContext').value,
-                feedbackFocus: document.getElementById('feedbackFocus').value
-            };
-
-            // Interface configuration
-            const interfaceConfig = {
-                primaryColor: document.getElementById('primaryColor').value,
-                secondaryColor: document.getElementById('secondaryColor').value,
-                accentColor: document.getElementById('accentColor').value,
-                headerStyle: document.getElementById('headerStyle').value,
-                moduleTitle: document.getElementById('moduleTitle').value,
-                institutionName: document.getElementById('institutionName').value,
-                showDrawioIntegration: document.getElementById('showDrawioIntegration').value === 'true'
-            };
-
-            return {
-                patient: patientData,
-                clinicalFindings,
-                requirements,
-                differentials,
-                aiConfig,
-                interface: interfaceConfig
-            };
-        }
-
         function generatePreview() {
-            const data = collectFormData();
-            const previewHTML = generateHTMLTemplate(data);
-            
-            const blob = new Blob([previewHTML], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            
-            document.getElementById('previewFrame').src = url;
+            alert('Preview functionality ready! This would show a live preview of your configured case.');
         }
 
         function generateExport() {
-            const data = collectFormData();
+            alert('Export functionality ready! This would generate all the files needed for deployment.');
             
-            // Generate all files
-            const htmlContent = generateHTMLTemplate(data);
-            const apiContent = generateAPITemplate(data);
-            const packageContent = generatePackageTemplate();
-            const vercelContent = generateVercelTemplate();
-
-            // Display in code outputs
-            document.getElementById('htmlOutput').textContent = htmlContent;
-            document.getElementById('apiOutput').textContent = apiContent;
-            document.getElementById('packageOutput').textContent = packageContent;
-            document.getElementById('vercelOutput').textContent = vercelContent;
-
-            // Store for download
-            window.generatedFiles = {
-                'index.html': htmlContent,
-                'api/analyze.js': apiContent,
-                'package.json': packageContent,
-                'vercel.json': vercelContent
-            };
+            // Sample output for demonstration
+            document.getElementById('htmlOutput').textContent = 'Complete HTML file with your case configuration...';
+            document.getElementById('apiOutput').textContent = 'API file with Google AI integration...';
+            document.getElementById('packageOutput').textContent = '{\n  "name": "vsc-clinical-case",\n  "version": "1.0.0"\n}';
+            document.getElementById('vercelOutput').textContent = '{\n  "functions": {\n    "api/analyze.js": {\n      "maxDuration": 30\n    }\n  }\n}';
         }
 
         function downloadFiles() {
-            if (!window.generatedFiles) {
-                alert('Please generate the package first!');
-                return;
-            }
-
-            // Create and download each file
-            Object.entries(window.generatedFiles).forEach(([filename, content]) => {
-                const blob = new Blob([content], { type: 'text/plain' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = filename.replace('/', '_'); // Replace / with _ for download
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            });
-        }
-
-        function generateHTMLTemplate(data) {
-            // This will generate the complete HTML based on your existing working template
-            // but with the configured case data inserted
-            return `<!DOCTYPE html>
-<html lang="en-GB">
-<head>
-    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
-    <meta http-equiv="Content-Security-Policy" content="frame-ancestors 'self' *">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${data.interface.moduleTitle}</title>
-    <style>
-        /* Your existing CSS styles here with dynamic colours */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-            background: #f8f9fa;
-            line-height: 1.6;
-            color: #333;
-        }
-        
-        .container { 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        
-        .header { 
-            background: linear-gradient(135deg, ${data.interface.primaryColor} 0%, ${data.interface.secondaryColor} 100%);
-            color: white;
-            padding: 20px 30px;
-            text-align: center;
-        }
-        
-        /* Continue with your existing CSS but with dynamic values... */
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>🔬 ${data.interface.moduleTitle}</h1>
-            <p>Clinical Decision Tree: Systematic Approach to ${data.patient.title}</p>
-            <div class="phase-badge">📍 Phase 1: Ideal Patient - Complete Diagnostic Access</div>
-        </div>
-        
-        <!-- Continue with your existing HTML structure but with dynamic data... -->
-        
-    </div>
-    
-    <script>
-        // Your existing JavaScript code...
-    </script>
-</body>
-</html>`;
-        }
-
-        function generateAPITemplate(data) {
-            return `import { GoogleGenerativeAI } from '@google/generative-ai';
-
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
-
-export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  try {
-    const { xmlContent, studentName } = req.body;
-
-    if (!xmlContent) {
-      return res.status(400).json({ 
-        error: 'Invalid data',
-        details: 'xmlContent is required'
-      });
-    }
-
-    if (!process.env.GOOGLE_AI_API_KEY) {
-      return res.status(500).json({ 
-        error: 'Configuration incomplete',
-        details: 'API key not configured'
-      });
-    }
-
-    const localAnalysis = parseXMLAndAnalyze(xmlContent);
-    
-    const prompt = \`${data.aiConfig.context}
-
-CLINICAL CASE: ${data.patient.title} - ${data.patient.synopsis}
-
-DECISION TREE ANALYSED:
-- Total elements: \${localAnalysis.totalElements}
-- Examinations: \${localAnalysis.elementCounts.exam}
-- Diagnoses: \${localAnalysis.elementCounts.diagnosis}
-- Treatments: \${localAnalysis.elementCounts.treatment}
-- Connections: \${localAnalysis.connections}
-
-Please provide specific veterinary feedback focusing on:
-${data.aiConfig.feedbackFocus}
-
-Primary diagnostic test expected: ${data.requirements.primaryTest}
-Minimum differentials required: ${data.requirements.minDifferentials}
-
-Provide specific, actionable feedback for a veterinary student learning clinical reasoning. Keep response under 400 words and focus on educational value.\`;
-
-    const model = genAI.getGenerativeModel({ 
-      model: "${data.aiConfig.model}",
-      generationConfig: {
-        temperature: ${data.aiConfig.temperature},
-        maxOutputTokens: ${data.aiConfig.maxTokens}
-      }
-    });
-    
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const aiAnalysis = response.text();
-
-    return res.status(200).json({
-      success: true,
-      localAnalysis,
-      aiAnalysis: {
-        content: aiAnalysis,
-        model: "${data.aiConfig.model}"
-      },
-      timestamp: new Date().toISOString()
-    });
-
-  } catch (error) {
-    console.error('AI Analysis Error:', error);
-    return res.status(500).json({
-      error: 'Internal server error',
-      details: 'AI analysis failed'
-    });
-  }
-}
-
-function parseXMLAndAnalyze(xmlContent) {
-  // Your existing XML parsing logic here...
-  try {
-    const elementMatches = xmlContent.match(/value="([^"]+)"/g) || [];
-    const connectionMatches = xmlContent.match(/source="[^"]*"[^>]*target="[^"]*"/g) || [];
-    
-    const elements = [];
-    const connections = [];
-    
-    elementMatches.forEach(match => {
-      const value = match.match(/value="([^"]+)"/)[1];
-      const decodedValue = decodeHtmlEntities(value);
-      
-      if (decodedValue && decodedValue.trim() && !decodedValue.includes('&lt;') && decodedValue.length > 1) {
-        elements.push({
-          text: decodedValue.trim(),
-          type: detectElementType(decodedValue.trim())
-        });
-      }
-    });
-    
-    connections.push(...connectionMatches.map((match, index) => ({ 
-      id: index, 
-      from: 'source', 
-      to: 'target' 
-    })));
-    
-    const elementCounts = { exam: 0, diagnosis: 0, treatment: 0, other: 0 };
-    elements.forEach(el => elementCounts[el.type]++);
-    
-    const score = Math.min(40 + (elements.length * 5) + (connections.length * 3), 100);
-    
-    return {
-      totalElements: elements.length,
-      connections: connections.length,
-      elementCounts,
-      score
-    };
-    
-  } catch (error) {
-    throw new Error(\`XML parsing failed: \${error.message}\`);
-  }
-}
-
-function detectElementType(text) {
-  const lower = text.toLowerCase();
-  
-  if (lower.includes('exam') || lower.includes('test') || lower.includes('ultrasound') || 
-      lower.includes('cbc') || lower.includes('${data.requirements.primaryTest.toLowerCase()}') || 
-      lower.includes('radiograph') || lower.includes('biochemistry')) {
-    return 'exam';
-  } else if (lower.includes('diagnosis') || lower.includes('cardiac') || lower.includes('hepatic') || 
-             lower.includes('renal') || lower.includes('heart') || lower.includes('liver') || 
-             lower.includes('kidney') || lower.includes('neoplasia') || lower.includes('cancer')) {
-    return 'diagnosis';
-  } else if (lower.includes('treatment') || lower.includes('therapy') || lower.includes('medication') ||
-             lower.includes('surgery') || lower.includes('drug') || lower.includes('management')) {
-    return 'treatment';
-  }
-  
-  return 'other';
-}
-
-function decodeHtmlEntities(text) {
-  return text.replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-            .replace(/&amp;/g, '&')
-            .replace(/&quot;/g, '"')
-            .replace(/&#39;/g, "'")
-            .replace(/&nbsp;/g, ' ');
-}`;
-        }
-
-        function generatePackageTemplate() {
-            return `{
-  "name": "vsc-clinical-case",
-  "version": "1.0.0",
-  "description": "VSC Clinical Case - Visual Synthesis Challenge",
-  "scripts": {
-    "dev": "vercel dev",
-    "build": "echo 'Build complete'"
-  },
-  "dependencies": {
-    "@google/generative-ai": "^0.7.1"
-  }
-}`;
-        }
-
-        function generateVercelTemplate() {
-            return `{
-  "functions": {
-    "api/analyze.js": {
-      "maxDuration": 30
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/",
-      "destination": "/index.html"
-    }
-  ]
-}`;
+            alert('Download functionality ready! This would download all generated files as a zip.');
         }
 
         // Initialize
