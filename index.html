@@ -380,9 +380,22 @@
             <div class="form-section">
                 <h3>🔍 Key Differential Diagnoses</h3>
                 
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Cardiac Causes</label>
+                <div class="help-box">
+                    <h4>💡 Customise Categories</h4>
+                    <p>Add or remove diagnostic categories based on your clinical case. Different presentations require different pathophysiological approaches.</p>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <button class="btn btn-success" onclick="addDiagnosticCategory()">➕ Add New Category</button>
+                    <button class="btn btn-secondary" onclick="loadDiagnosticTemplate()">📋 Load Template</button>
+                </div>
+                
+                <div id="diagnosticCategories" class="form-grid">
+                    <div class="form-group" data-category="cardiacCauses">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <input type="text" value="Cardiac Causes" class="category-name" style="flex: 1; font-weight: 600;">
+                            <button class="btn btn-danger" onclick="removeDiagnosticCategory(this)" style="padding: 8px 12px;">🗑️</button>
+                        </div>
                         <div class="dynamic-list" id="cardiacCauses">
                             <div class="list-item">
                                 <input type="text" value="Right-sided heart failure">
@@ -396,8 +409,11 @@
                         <button class="btn btn-secondary" onclick="addDifferential('cardiacCauses')">➕ Add</button>
                     </div>
                     
-                    <div class="form-group">
-                        <label>Hepatic Causes</label>
+                    <div class="form-group" data-category="hepaticCauses">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <input type="text" value="Hepatic Causes" class="category-name" style="flex: 1; font-weight: 600;">
+                            <button class="btn btn-danger" onclick="removeDiagnosticCategory(this)" style="padding: 8px 12px;">🗑️</button>
+                        </div>
                         <div class="dynamic-list" id="hepaticCauses">
                             <div class="list-item">
                                 <input type="text" value="Cirrhosis/portal hypertension">
@@ -411,8 +427,11 @@
                         <button class="btn btn-secondary" onclick="addDifferential('hepaticCauses')">➕ Add</button>
                     </div>
                     
-                    <div class="form-group">
-                        <label>Renal Causes</label>
+                    <div class="form-group" data-category="renalCauses">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <input type="text" value="Renal Causes" class="category-name" style="flex: 1; font-weight: 600;">
+                            <button class="btn btn-danger" onclick="removeDiagnosticCategory(this)" style="padding: 8px 12px;">🗑️</button>
+                        </div>
                         <div class="dynamic-list" id="renalCauses">
                             <div class="list-item">
                                 <input type="text" value="Protein-losing nephropathy">
@@ -426,8 +445,11 @@
                         <button class="btn btn-secondary" onclick="addDifferential('renalCauses')">➕ Add</button>
                     </div>
                     
-                    <div class="form-group">
-                        <label>Neoplastic Causes</label>
+                    <div class="form-group" data-category="neoplasticCauses">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <input type="text" value="Neoplastic Causes" class="category-name" style="flex: 1; font-weight: 600;">
+                            <button class="btn btn-danger" onclick="removeDiagnosticCategory(this)" style="padding: 8px 12px;">🗑️</button>
+                        </div>
                         <div class="dynamic-list" id="neoplasticCauses">
                             <div class="list-item">
                                 <input type="text" value="Abdominal tumours">
@@ -663,6 +685,119 @@
             container.appendChild(newItem);
         }
 
+        function addDiagnosticCategory() {
+            const container = document.getElementById('diagnosticCategories');
+            const categoryId = 'category' + Date.now(); // Unique ID
+            
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'form-group';
+            categoryDiv.setAttribute('data-category', categoryId);
+            
+            categoryDiv.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <input type="text" value="New Category" class="category-name" style="flex: 1; font-weight: 600;" placeholder="e.g., Respiratory Causes">
+                    <button class="btn btn-danger" onclick="removeDiagnosticCategory(this)" style="padding: 8px 12px;">🗑️</button>
+                </div>
+                <div class="dynamic-list" id="${categoryId}">
+                    <div class="list-item">
+                        <input type="text" placeholder="Differential diagnosis">
+                        <button class="btn btn-danger" onclick="removeListItem(this)">❌</button>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" onclick="addDifferential('${categoryId}')">➕ Add</button>
+            `;
+            
+            container.appendChild(categoryDiv);
+        }
+
+        function removeDiagnosticCategory(button) {
+            if (confirm('Remove this entire diagnostic category?')) {
+                button.closest('.form-group').remove();
+            }
+        }
+
+        function loadDiagnosticTemplate() {
+            const templates = {
+                'Ascites (Current)': {
+                    'Cardiac Causes': ['Right-sided heart failure', 'Congestive heart failure'],
+                    'Hepatic Causes': ['Cirrhosis/portal hypertension', 'Hepatic failure'],
+                    'Renal Causes': ['Protein-losing nephropathy', 'Chronic kidney disease'],
+                    'Neoplastic Causes': ['Abdominal tumours', 'Peritoneal carcinomatosis']
+                },
+                'Dyspnoea': {
+                    'Cardiac Causes': ['Congestive heart failure', 'Arrhythmias', 'Pericardial disease'],
+                    'Respiratory Causes': ['Pneumonia', 'Asthma', 'Pulmonary oedema', 'Pleural effusion'],
+                    'Metabolic Causes': ['Anaemia', 'Acidosis', 'Hyperthermia'],
+                    'Neurological Causes': ['CNS lesions affecting respiratory centres']
+                },
+                'Lameness': {
+                    'Orthopaedic Causes': ['Fractures', 'Joint disease', 'Ligament injury', 'Muscle injury'],
+                    'Neurological Causes': ['Spinal cord lesions', 'Peripheral neuropathy', 'Nerve entrapment'],
+                    'Vascular Causes': ['Thromboembolism', 'Compartment syndrome'],
+                    'Infectious Causes': ['Septic arthritis', 'Osteomyelitis', 'Soft tissue infection']
+                },
+                'Vomiting': {
+                    'Gastrointestinal Causes': ['Gastritis', 'Foreign body', 'Inflammatory bowel disease', 'Pancreatitis'],
+                    'Metabolic Causes': ['Kidney disease', 'Liver disease', 'Electrolyte imbalances'],
+                    'Neurological Causes': ['Motion sickness', 'CNS lesions', 'Vestibular disease'],
+                    'Toxic Causes': ['Drug toxicity', 'Plant toxins', 'Chemical ingestion']
+                },
+                'Diarrhoea': {
+                    'Dietary Causes': ['Food intolerance', 'Dietary indiscretion', 'Food allergies'],
+                    'Infectious Causes': ['Bacterial enteritis', 'Viral enteritis', 'Parasitic infection'],
+                    'Inflammatory Causes': ['IBD', 'Colitis', 'Enteritis'],
+                    'Neoplastic Causes': ['Intestinal tumours', 'Lymphoma'],
+                    'Metabolic Causes': ['Pancreatic insufficiency', 'Liver disease']
+                }
+            };
+
+            const templateName = prompt(`Choose a template:\n${Object.keys(templates).map((name, i) => `${i+1}. ${name}`).join('\n')}\n\nEnter number (1-${Object.keys(templates).length}):`);
+            
+            if (templateName) {
+                const templateKeys = Object.keys(templates);
+                const selectedTemplate = templates[templateKeys[parseInt(templateName) - 1]];
+                
+                if (selectedTemplate) {
+                    // Clear existing categories
+                    document.getElementById('diagnosticCategories').innerHTML = '';
+                    
+                    // Add template categories
+                    Object.entries(selectedTemplate).forEach(([categoryName, diagnoses]) => {
+                        const categoryId = categoryName.toLowerCase().replace(/\s+/g, '') + 'Causes';
+                        addTemplateCategory(categoryId, categoryName, diagnoses);
+                    });
+                }
+            }
+        }
+
+        function addTemplateCategory(categoryId, categoryName, diagnoses) {
+            const container = document.getElementById('diagnosticCategories');
+            
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'form-group';
+            categoryDiv.setAttribute('data-category', categoryId);
+            
+            const diagnosesHTML = diagnoses.map(diagnosis => `
+                <div class="list-item">
+                    <input type="text" value="${diagnosis}">
+                    <button class="btn btn-danger" onclick="removeListItem(this)">❌</button>
+                </div>
+            `).join('');
+            
+            categoryDiv.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <input type="text" value="${categoryName}" class="category-name" style="flex: 1; font-weight: 600;">
+                    <button class="btn btn-danger" onclick="removeDiagnosticCategory(this)" style="padding: 8px 12px;">🗑️</button>
+                </div>
+                <div class="dynamic-list" id="${categoryId}">
+                    ${diagnosesHTML}
+                </div>
+                <button class="btn btn-secondary" onclick="addDifferential('${categoryId}')">➕ Add</button>
+            `;
+            
+            container.appendChild(categoryDiv);
+        }
+
         function removeListItem(button) {
             button.parentElement.remove();
             updateBuildStatus();
@@ -708,13 +843,16 @@
                 minTreatments: document.getElementById('minTreatments').value
             };
 
-            // Differential diagnoses
-            const differentials = {
-                cardiac: Array.from(document.querySelectorAll('#cardiacCauses input')).map(i => i.value).filter(v => v),
-                hepatic: Array.from(document.querySelectorAll('#hepaticCauses input')).map(i => i.value).filter(v => v),
-                renal: Array.from(document.querySelectorAll('#renalCauses input')).map(i => i.value).filter(v => v),
-                neoplastic: Array.from(document.querySelectorAll('#neoplasticCauses input')).map(i => i.value).filter(v => v)
-            };
+            // Differential diagnoses (dynamic categories)
+            const differentials = {};
+            document.querySelectorAll('#diagnosticCategories .form-group').forEach(categoryGroup => {
+                const categoryName = categoryGroup.querySelector('.category-name').value;
+                const categoryId = categoryGroup.getAttribute('data-category');
+                const diagnoses = Array.from(categoryGroup.querySelectorAll('.dynamic-list input'))
+                    .map(i => i.value)
+                    .filter(v => v.trim() !== '');
+                differentials[categoryName] = diagnoses;
+            });
 
             // AI configuration
             const aiConfig = {
@@ -833,19 +971,14 @@
                     </ul>
                 </div>
 
-                <div class="info-card">
-                    <h4>💔 Cardiac Causes</h4>
-                    <ul class="info-list">
-                        ${data.differentials.cardiac.map(cause => `<li>${cause}</li>`).join('')}
-                    </ul>
-                </div>
-
-                <div class="info-card">
-                    <h4>🫀 Hepatic Causes</h4>
-                    <ul class="info-list">
-                        ${data.differentials.hepatic.map(cause => `<li>${cause}</li>`).join('')}
-                    </ul>
-                </div>
+                ${Object.entries(data.differentials).map(([categoryName, causes]) => `
+                    <div class="info-card">
+                        <h4>🔍 ${categoryName}</h4>
+                        <ul class="info-list">
+                            ${causes.map(cause => `<li>${cause}</li>`).join('')}
+                        </ul>
+                    </div>
+                `).join('')}
             </div>
 
             <div class="requirements">
